@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package RFQ;
+
+message Request {
+    int32 id = 1;
+    string account = 2;
+    int32 number = 3;
+    string category = 4;
+    int32 quantity = 5;
+}
