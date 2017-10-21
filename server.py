@@ -147,4 +147,4 @@ api.add_resource(rfq, '/rfq')
 api.add_resource(rfq_id, '/rfq/<int:id>')
 
 if __name__ == '__main__':
-     app.run(port='5002', threaded=True)
+     app.run(host='0.0.0.0', port='5002', threaded=True)
