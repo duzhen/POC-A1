@@ -49,7 +49,9 @@ args = parser.parse_args()
 
 rfq = rfq_pb2.Request()
 
-if args.which == 'get':
+if not hasattr(args, 'which'):
+    response = requests.get(url)
+elif args.which == 'get':
     if args.ID:
         response = requests.get(url+'/'+str(args.ID))
     else:
