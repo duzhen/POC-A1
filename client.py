@@ -4,7 +4,7 @@ import argparse
 import time
 from random import randint
 
-url = 'http://127.0.0.1:5002/rfq'
+url = 'http://ec2-18-216-10-102.us-east-2.compute.amazonaws.com:5002/rfq'
 
 def PostRequest(Request, id=int(time.time())):
     Request.id = id
