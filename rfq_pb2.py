@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='rfq.proto',
   package='RFQ',
   syntax='proto3',
-  serialized_pb=_b('\n\trfq.proto\x12\x03RFQ\"Z\n\x07Request\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07\x61\x63\x63ount\x18\x02 \x01(\t\x12\x0e\n\x06number\x18\x03 \x01(\x05\x12\x10\n\x08\x63\x61tegory\x18\x04 \x01(\t\x12\x10\n\x08quantity\x18\x05 \x01(\x05\x62\x06proto3')
+  serialized_pb=_b('\n\trfq.proto\x12\x03RFQ\"Z\n\x07Request\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07\x61\x63\x63ount\x18\x02 \x01(\t\x12\x0e\n\x06number\x18\x03 \x01(\x05\x12\x10\n\x08\x63\x61tegory\x18\x04 \x01(\t\x12\x10\n\x08quantity\x18\x05 \x01(\x05\"&\n\x05Quote\x12\r\n\x05price\x18\x01 \x01(\x05\x12\x0e\n\x06period\x18\x02 \x03(\t\")\n\x08LRequest\x12\x1d\n\x07request\x18\x01 \x03(\x0b\x32\x0c.RFQ.Request\"#\n\x06LQuote\x12\x19\n\x05quote\x18\x01 \x03(\x0b\x32\n.RFQ.Quoteb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -84,7 +84,112 @@ _REQUEST = _descriptor.Descriptor(
   serialized_end=108,
 )
 
+
+_QUOTE = _descriptor.Descriptor(
+  name='Quote',
+  full_name='RFQ.Quote',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='price', full_name='RFQ.Quote.price', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='period', full_name='RFQ.Quote.period', index=1,
+      number=2, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=110,
+  serialized_end=148,
+)
+
+
+_LREQUEST = _descriptor.Descriptor(
+  name='LRequest',
+  full_name='RFQ.LRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='request', full_name='RFQ.LRequest.request', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=150,
+  serialized_end=191,
+)
+
+
+_LQUOTE = _descriptor.Descriptor(
+  name='LQuote',
+  full_name='RFQ.LQuote',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='quote', full_name='RFQ.LQuote.quote', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=193,
+  serialized_end=228,
+)
+
+_LREQUEST.fields_by_name['request'].message_type = _REQUEST
+_LQUOTE.fields_by_name['quote'].message_type = _QUOTE
 DESCRIPTOR.message_types_by_name['Request'] = _REQUEST
+DESCRIPTOR.message_types_by_name['Quote'] = _QUOTE
+DESCRIPTOR.message_types_by_name['LRequest'] = _LREQUEST
+DESCRIPTOR.message_types_by_name['LQuote'] = _LQUOTE
 
 Request = _reflection.GeneratedProtocolMessageType('Request', (_message.Message,), dict(
   DESCRIPTOR = _REQUEST,
@@ -92,6 +197,27 @@ Request = _reflection.GeneratedProtocolMessageType('Request', (_message.Message,
   # @@protoc_insertion_point(class_scope:RFQ.Request)
   ))
 _sym_db.RegisterMessage(Request)
+
+Quote = _reflection.GeneratedProtocolMessageType('Quote', (_message.Message,), dict(
+  DESCRIPTOR = _QUOTE,
+  __module__ = 'rfq_pb2'
+  # @@protoc_insertion_point(class_scope:RFQ.Quote)
+  ))
+_sym_db.RegisterMessage(Quote)
+
+LRequest = _reflection.GeneratedProtocolMessageType('LRequest', (_message.Message,), dict(
+  DESCRIPTOR = _LREQUEST,
+  __module__ = 'rfq_pb2'
+  # @@protoc_insertion_point(class_scope:RFQ.LRequest)
+  ))
+_sym_db.RegisterMessage(LRequest)
+
+LQuote = _reflection.GeneratedProtocolMessageType('LQuote', (_message.Message,), dict(
+  DESCRIPTOR = _LQUOTE,
+  __module__ = 'rfq_pb2'
+  # @@protoc_insertion_point(class_scope:RFQ.LQuote)
+  ))
+_sym_db.RegisterMessage(LQuote)
 
 
 # @@protoc_insertion_point(module_scope)

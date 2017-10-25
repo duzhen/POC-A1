@@ -18,18 +18,18 @@
 # http://127.0.0.1:5002/employees/8
 
 
-from flask import Flask, request
+from flask import Flask, request, send_file, abort
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 # from json import dumps
-from flask.ext.jsonpify import jsonify
-from flask import abort
-
-import rfq_pb2
+from flask_jsonpify import jsonify
+from rfq_pb2 import Request, Quote, LRequest
 import time
+import io
+import json
 
 app = Flask(__name__)
-api = Api(app)
+flask_api = Api(app)
 
 database = [
     {
@@ -62,6 +62,27 @@ database = [
     }
 ]
 
+def getProtoResponse(a,b,c):
+    q = Quote()
+    q.period.append(a)
+    q.period.append(b)
+    q.price = c
+    return q.SerializeToString()
+
+def getProtoDatabase():
+    l = LRequest()
+    for d in database:
+        r = l.request.add()
+        r.id = d['id']
+        r.account = d['account']
+        r.number = d['number']
+        r.category = d['category']
+        r.quantity = d['quantity']
+
+    return send_file(
+                io.BytesIO(l.SerializeToString()),
+                mimetype='application/octet-stream')
+
 @app.route('/')
 def index():
     return "Assignment 1<p>" \
@@ -70,67 +91,142 @@ def index():
 
 class rfq(Resource):
     def get(self):
-        return jsonify(database)
+        if 'octet-stream' in request.headers.get('Accept') and \
+                        'octet-stream' in request.headers.get('Content-Type'):
+            return getProtoDatabase()
+        else:
+            return jsonify(database)
+
     def post(self):
-        rfq = rfq_pb2.Request()
-        print("Post Protocol Buffer Request:")
-        print(request.data)
-        rfq.ParseFromString(request.data)
+        if 'octet-stream' in request.headers.get('Accept') and \
+                        'octet-stream' in request.headers.get('Content-Type'):
+            rfq = Request()
+            print("Post Protocol Buffer Request:")
+            print(request.data)
+            rfq.ParseFromString(request.data)
+            print("->")
+            print(rfq)
 
-        data = [d for d in database if d['id'] == rfq.id]
-        if len(data) != 0:
-            abort(400)
+            data = [d for d in database if d['id'] == rfq.id]
+            if len(data) != 0:
+                abort(400)
 
-        d = {
-            'id': rfq.id,
-            'account': rfq.account,
-            'number': rfq.number,
-            'category': rfq.category,
-            'quantity': rfq.quantity
-        }
-        database.append(d)
+            d = {
+                'id': rfq.id,
+                'account': rfq.account,
+                'number': rfq.number,
+                'category': rfq.category,
+                'quantity': rfq.quantity
+            }
+            database.append(d)
 
-        return jsonify({'price': d['number'] + d['quantity'],
+            p =  getProtoResponse(time.asctime(time.localtime(abs(d['id'] - 24 * 3600))),
+                                    time.asctime(time.localtime(abs(d['id']))), d['number'] + d['quantity'])
+            return send_file(
+                io.BytesIO(p),
+                mimetype='application/octet-stream')
+        else:
+            rfq = json.loads(request.data)
+            print("Post Json Request:")
+            print(request.data)
+            print("->")
+            print(rfq)
+            data = [d for d in database if d['id'] == rfq['id']]
+            if len(data) != 0:
+                abort(400)
+            d = {
+                'id': rfq['id'],
+                'account': rfq['account'],
+                'number': rfq['number'],
+                'category': rfq['category'],
+                'quantity': rfq['quantity']
+            }
+            database.append(d)
+            return jsonify({'price': d['number'] + d['quantity'],
                         'period': [time.asctime(time.localtime(abs(d['id'] - 24 * 3600))),
                                    time.asctime(time.localtime(abs(d['id'])))]})
 
     def put(self):
-        rfq = rfq_pb2.Request()
-        print("Put Protocol Buffer Request:")
-        print(request.data)
-        rfq.ParseFromString(request.data)
+        if 'octet-stream' in request.headers.get('Accept') and \
+                        'octet-stream' in request.headers.get('Content-Type'):
+            rfq = Request()
+            print("Put Protocol Buffer Request:")
+            print(request.data)
+            rfq.ParseFromString(request.data)
+            print("->")
+            print(rfq)
+            data = [d for d in database if d['id'] == rfq.id]
+            if len(data) == 0:
+                abort(400)
 
-        data = [d for d in database if d['id'] == rfq.id]
-        if len(data) == 0:
-            abort(400)
+            d = data[0]
+            d['account'] = rfq.account
+            d['number'] = rfq.number
+            d['category'] = rfq.category
+            d['quantity'] = rfq.quantity
 
-        d = data[0]
-        d['account'] = rfq.account
-        d['number'] = rfq.number
-        d['category'] = rfq.category
-        d['quantity'] = rfq.quantity
+            p = getProtoResponse(time.asctime(time.localtime(abs(d['id'] - 24 * 3600))),
+                                 time.asctime(time.localtime(abs(d['id']))), d['number'] + d['quantity'])
+            return send_file(
+                io.BytesIO(p),
+                mimetype='application/octet-stream')
+        else:
+            rfq = json.loads(request.data)
+            print("Post Json Request:")
+            print(request.data)
+            print("->")
+            print(rfq)
+            data = [d for d in database if d['id'] == rfq['id']]
+            if len(data) == 0:
+                abort(400)
 
-        return jsonify({'price': d['number'] + d['quantity'],
-                        'period': [time.asctime(time.localtime(abs(d['id'] - 24 * 3600))),
-                                   time.asctime(time.localtime(abs(d['id'])))]})
+            d = data[0]
+            d['account'] = rfq['account']
+            d['number'] = rfq['number']
+            d['category'] = rfq['category']
+            d['quantity'] = rfq['quantity']
+
+            return jsonify({'price': d['number'] + d['quantity'],
+                            'period': [time.asctime(time.localtime(abs(d['id'] - 24 * 3600))),
+                                       time.asctime(time.localtime(abs(d['id'])))]})
 
     def delete(self):
-        rfq = rfq_pb2.Request()
-        print("Delete Protocol Buffer Request:")
-        print(request.data)
-        rfq.ParseFromString(request.data)
+        if 'octet-stream' in request.headers.get('Accept') and \
+                        'octet-stream' in request.headers.get('Content-Type'):
+            rfq = Request()
+            print("Delete Protocol Buffer Request:")
+            print(request.data)
+            rfq.ParseFromString(request.data)
 
-        data = [d for d in database if d['id'] == rfq.id]
-        if len(data) == 0:
-            abort(400)
-        print("Delete ID:"+str(rfq.id))
+            data = [d for d in database if d['id'] == rfq.id]
+            if len(data) == 0:
+                abort(400)
+            print("Delete ID:" + str(rfq.id))
 
-        d = data[0]
-        database.remove(data[0])
+            d = data[0]
+            database.remove(data[0])
+            p = getProtoResponse(time.asctime(time.localtime(abs(d['id'] - 24 * 3600))),
+                                 time.asctime(time.localtime(abs(d['id']))), d['number'] + d['quantity'])
+            return send_file(
+                io.BytesIO(p),
+                mimetype='application/octet-stream')
+        else:
+            rfq = json.loads(request.data)
+            print("Post Json Request:")
+            print(request.data)
+            print("->")
+            print(rfq)
+            data = [d for d in database if d['id'] == rfq['id']]
+            if len(data) == 0:
+                abort(400)
+            print("Delete ID:"+str(rfq['id']))
 
-        return jsonify({'price': d['number'] + d['quantity'],
-                        'period': [time.asctime(time.localtime(abs(d['id'] - 24 * 3600))),
-                                   time.asctime(time.localtime(abs(d['id'])))]})
+            d = data[0]
+            database.remove(data[0])
+
+            return jsonify({'price': d['number'] + d['quantity'],
+                            'period': [time.asctime(time.localtime(abs(d['id'] - 24 * 3600))),
+                                       time.asctime(time.localtime(abs(d['id'])))]})
 
 class rfq_id(Resource):
     def get(self, id):
@@ -139,12 +235,20 @@ class rfq_id(Resource):
             abort(404)
         print("Get ID:" + str(id))
         d = data[0]
-        return jsonify({'price': d['number'] + d['quantity'],
-                        'period': [time.asctime(time.localtime(abs(d['id'] - 24 * 3600))),
-                                   time.asctime(time.localtime(abs(d['id'])))]})
+        if 'octet-stream' in request.headers.get('Accept') and \
+                        'octet-stream' in request.headers.get('Content-Type'):
+            p = getProtoResponse(time.asctime(time.localtime(abs(d['id'] - 24 * 3600))),
+                                 time.asctime(time.localtime(abs(d['id']))), d['number'] + d['quantity'])
+            return send_file(
+                io.BytesIO(p),
+                mimetype='application/octet-stream')
+        else:
+            return jsonify({'price': d['number'] + d['quantity'],
+                            'period': [time.asctime(time.localtime(abs(d['id'] - 24 * 3600))),
+                                       time.asctime(time.localtime(abs(d['id'])))]})
 
-api.add_resource(rfq, '/rfq')
-api.add_resource(rfq_id, '/rfq/<int:id>')
+flask_api.add_resource(rfq, '/rfq')
+flask_api.add_resource(rfq_id, '/rfq/<int:id>')
 
 if __name__ == '__main__':
      app.run(host='0.0.0.0', port='5002', threaded=True)

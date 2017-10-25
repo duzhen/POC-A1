@@ -9,3 +9,16 @@ message Request {
     string category = 4;
     int32 quantity = 5;
 }
+
+message Quote {
+    int32 price = 1;
+    repeated string period = 2;
+}
+
+message LRequest {
+    repeated Request request = 1;
+}
+
+message LQuote {
+    repeated Quote quote = 1;
+}
