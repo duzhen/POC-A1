@@ -8,20 +8,10 @@
 
 # $ virtualenv venv
 # $ source venv/bin/activate
-# $ pip install flask flask-jsonpify flask-sqlalchemy flask-restful
-# $ pip freeze 
-
-# run this server.py code
-
-# http://127.0.0.1:5002/employees 
-# http://127.0.0.1:5002/tracks
-# http://127.0.0.1:5002/employees/8
-
+# $ pip install requirements.txt
 
 from flask import Flask, request, send_file, abort
 from flask_restful import Resource, Api
-from sqlalchemy import create_engine
-# from json import dumps
 from flask_jsonpify import jsonify
 from rfq_pb2 import Request, Quote, LRequest
 import time

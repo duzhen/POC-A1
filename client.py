@@ -5,8 +5,6 @@ import time
 import json
 from random import randint
 
-url = 'http://ec2-18-216-10-102.us-east-2.compute.amazonaws.com:5002/rfq'
-# url = 'http://localhost:5002/rfq'
 data = {
         'id': int(time.time()),
         'account': 'JSON POST NEW ACCOUNT',
@@ -29,7 +27,7 @@ def PutRequest(Request, id=int(time.time())):
     Request.category = 'PROTOCOL PUT NEW'
     Request.quantity = randint(1, 10)
 
-def DelRequest(Request, id=1):
+def DelRequest(Request, id=int(time.time())):
     Request.id = id
     #Request.account = 'apple'
     #Request.number = randint(0, 100)
@@ -44,7 +42,7 @@ def getHeaders(args):
 
 def getData(args):
     if args.json:
-        print("Json Value:")
+        print("Request Json Value:")
         print(json.dumps(data))
         return json.dumps(data)
     else:
@@ -52,7 +50,7 @@ def getData(args):
         print(rfq.SerializeToString())
         return rfq.SerializeToString()
 
-parser = argparse.ArgumentParser(description="Protocol Buffer Client.")
+parser = argparse.ArgumentParser(description="Request For Quote Client.")
 subparsers = parser.add_subparsers(help='commands')
 get_parser = subparsers.add_parser('get', help='executes a HTTP GET request and prints the response.')
 get_parser.add_argument("ID", type=int, nargs='?', help="Request ID")
@@ -74,7 +72,16 @@ group = parser.add_mutually_exclusive_group(required=False)
 group.add_argument("--json", action="store_true", dest="json", default=False, help="Use json to make a request.")
 group.add_argument("--proto", action="store_true", dest="proto", default=False, help="Use protocol buffer to make a request.")
 
+group1 = parser.add_mutually_exclusive_group(required=False)
+group1.add_argument("--standalone", action="store_true", dest="alone", default=False, help="Connect to the localhost server.")
+group1.add_argument("--cloud", action="store_true", dest="cloud", default=False, help="Connect to the cloud server.")
+
 args = parser.parse_args()
+
+if args.alone:
+    url = 'http://localhost:5002/rfq'
+else:
+    url = 'http://ec2-18-216-10-102.us-east-2.compute.amazonaws.com:5002/rfq'
 
 rfq = rfq_pb2.Request()
 
@@ -121,7 +128,7 @@ if args.json:
     print("->")
     print(json.loads(response.content))
 elif response.status_code == 200:
-    if not hasattr(args, 'which') or not args.ID:
+    if not hasattr(args, 'which') or (args.which=='get' and not args.ID):
         l = rfq_pb2.LRequest()
         l.ParseFromString(response.content)
         print("->")
