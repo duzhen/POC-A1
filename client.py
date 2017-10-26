@@ -81,7 +81,7 @@ args = parser.parse_args()
 if args.alone:
     url = 'http://localhost:5002/rfq'
 else:
-    url = 'http://ec2-18-216-10-102.us-east-2.compute.amazonaws.com:5002/rfq'
+    url = 'http://ec2-18-216-37-90.us-east-2.compute.amazonaws.com:5002/rfq'
 
 rfq = rfq_pb2.Request()
 
